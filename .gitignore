@@ -1,0 +1,4 @@
+secrets/
+.devcontainer/
+venv/
+data/

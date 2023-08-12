@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Drag and Drop File Upload</title>
+  </head>
+
+  <body>
+    <h1>Drag and Drop File Upload to Azure Blob Storage</h1>
+    <div
+      id="dropzone"
+      style="border: 2px dashed #ccc; padding: 20px; width: 300px"
+    >
+      <p>Drag and drop a file here</p>
+    </div>
+
+    <script>
+      const dropzone = document.getElementById("dropzone");
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = "blue";
+      });
+
+      dropzone.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = "#ccc";
+      });
+
+      dropzone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = "#ccc";
+
+        const file = e.dataTransfer.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          alert("File uploaded successfully");
+        } else {
+          alert("An error occurred while uploading the file");
+        }
+      });
+    </script>
+  </body>
+</html>
