@@ -1,0 +1,4 @@
+gunicorn
+azure-storage-blob
+Flask
+
