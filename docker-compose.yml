@@ -1,0 +1,7 @@
+services:
+  uploadapp:
+    image: uploadapp
+    env_file:
+      - secrets/.env
+    ports:
+      - "5000:50505"

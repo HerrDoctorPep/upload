@@ -28,3 +28,17 @@ At some point I want to make a requirements file for `apt-get` as well, like [he
 sed 's/#.*//' config/requirements.system | xargs sudo apt-get install
 ```
 
+### Git
+
+Added an ssh key following [this](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) in the secrets folder.
+
+Make key available:
+```bash
+eval "$(ssh-agent -s)"
+ssh-add config/github-ssh
+```
+
+### Deploying the app
+
+I follow [this tutorial](https://learn.microsoft.com/en-us/azure/developer/python/tutorial-containerize-simple-web-app-for-app-service?tabs=web-app-flask)
+

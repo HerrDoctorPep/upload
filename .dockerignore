@@ -4,3 +4,5 @@ secrets/
 .devcontainer/
 venv/
 data/
+docker-compose.yml
+Dockerfile
