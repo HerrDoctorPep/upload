@@ -14,19 +14,9 @@ Objectives:
 ### Docker image
 
 - I let go of Conda in favour of `venv` to get a much smaller docker image(too much weight in conda)
-- Started from `ubuntu:latest` image with a few additional `apt-get install` things.
-- Needed to install `python3`, `python3-venv`, and `python3-pip` separately (first installing `software-properties-common` and `gpg-agent` to allow use of different repo
-as mentioned [here](https://github.com/dbt-labs/dbt-core/issues/7352))
-- Decided to roll back `openssl` to version 1.1.1 anticipating use of Azure AI (cf. speech2text error correspondence)
+- Started from Dockerś standard `python:3.10` image instead (as installing on top of `ubuntu:latest` led to too much issues to resolve)
 
-As long as I develop in the devcontainer, I don´t need to worry about a `venv`.
-If I wantto develop locally, it is necessary to separate things.
-
-At some point I want to make a requirements file for `apt-get` as well, like [here](https://www.monolune.com/articles/installing-apt-packages-from-a-requirements-file/); to improve maintainablity.
-
-```bash
-sed 's/#.*//' config/requirements.system | xargs sudo apt-get install
-```
+With `devcontainer` even venv is not needed. Just spin up container with dependencies from the right `requirements.txt`
 
 ### Git
 
@@ -42,3 +32,21 @@ ssh-add config/github-ssh
 
 I follow [this tutorial](https://learn.microsoft.com/en-us/azure/developer/python/tutorial-containerize-simple-web-app-for-app-service?tabs=web-app-flask)
 
+With connection to Github, Azure makes its own container and ignores the `Dockerfile` 
+- Environmennt variables for the webapp can be set through Azure portal: 
+  - 'Configuration' tab of the webapp resource
+    - 'Application settings' tab therein
+- Mounting Azure storage as local drive through Azure portal as well:
+  -  'Configuration' tab of the webapp resource
+     -  'Path mappings' tab therein
+-  Azure Active Directory used for access control
+   -  Users are created via Azure Active Directory service
+   -  Access control via IAM tab of the webapp resource
+
+### Local testing
+Local testing of the app goes through building and running a container as defined in `Dockerfile` and `docker-compose.yml`.
+```bash
+docker build --tag uploadapp .
+docker compose up
+```
+Environment variables are picked up from the `.env` to ensure access to Azure blob storage. To open the test-app visit: `localhost:5000`.
