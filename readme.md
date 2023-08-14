@@ -56,3 +56,15 @@ docker build --tag uploadapp .
 docker compose up
 ```
 Environment variables are picked up from the `.env` to ensure access to Azure blob storage. To open the test-app visit: `localhost:5000`.
+
+## Status and to do's
+
+Upload to blob works in test container (develop branch). Still to be deployed to production. 
+
+### Need smoother user experience in the app 
+- [ ] Status updates while the process runs
+- [ ] Download links for transcript and summary
+
+### Need version for interviews
+- [ ] Solve for context window overshoot of transcript
+- [ ] Transcription solution for multiple voices
