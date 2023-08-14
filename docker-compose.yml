@@ -1,7 +1,10 @@
 services:
   uploadapp:
-    image: uploadapp:apt
+    image: uploadapp:latest
     env_file:
       - secrets/.env
     ports:
-      - "5000:50505"
+      - 5000:50505
+    volumes:
+      - /mnt/d-drive/micro/Documents/GitHub/uploadapp/data:/uploadapp/data
+      - /mnt/d-drive/micro/Documents/GitHub/uploadapp/processing:/uploadapp/processing

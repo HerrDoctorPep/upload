@@ -3,6 +3,7 @@
 
 import os
 import time
+from datetime import datetime
 
 def get_file(input_file):
     """
@@ -29,7 +30,7 @@ def get_blob(blob_name):
     account_name = "s2torage"
     container_name = "s2t"
     account_url = f"https://{account_name}.blob.core.windows.net"
-    account_key = getenv("STORAGE_KEY")
+    account_key = os.environ["STORAGE_KEY"]
     container_name = "s2t"
 
     # Create client objects
@@ -55,8 +56,8 @@ def make_wav_from_mp3(mp3_file):
 
     base_name = os.path.splitext(mp3_file)[0]
     wav_file = base_name+".wav"
+    sound = AudioSegment.from_file(mp3_file,format="mp3")
 
-    sound = AudioSegment.from_mp3(mp3_file)
     sound.export(wav_file, format="wav")
     # soud_duration_seconds = len(sound) / 1000
 
@@ -70,13 +71,15 @@ def make_transcript(wav_file):
     """    
     import azure.cognitiveservices.speech as speechsdk
     
-    # <SpeechContinuousRecognitionWithFile>
     # Set the configuration for speech recognition 
     speech_config = speechsdk.SpeechConfig(
-        subscription=os.getenv("SPEECH_KEY"), 
-        region=os.getenv("SPEECH_REGION"))
+        subscription = os.environ["SPEECH_KEY"], 
+        region = os.environ["SPEECH_REGION"])
     speech_config.speech_recognition_language="en-GB"
     speech_config.output_format = speechsdk.OutputFormat.Detailed
+    now = datetime.now()
+    formatted_date = now.strftime("%Y%m%d%H%M%S")
+    speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "data/"+formatted_date+"-speechsdk.log")
 
     audio_config = speechsdk.audio.AudioConfig(filename=wav_file)
 
@@ -147,8 +150,8 @@ def make_summary(transcript_file):
     import openai
     import tiktoken
 
-    openai.organization = os.getenv("OPENAI_ORG")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    openai.organization = os.environ["OPENAI_ORG"]
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     
     openai_model = "gpt-3.5-turbo"
     instruction = "You write from the perspective of coach Kramer (she/her). You summarize for a busy executive."
@@ -209,9 +212,6 @@ def post_files():
             posted_files.append(dst_folder + file_name)
             cmd = f'mv "{"processing/" + file_name}" "{posted_files[-1]}"'
             os.system(cmd)
-        else:
-            cmd = f'rm "{"processing/" + file_name}"'
-            os.system(cmd)
 
     return post_files
 
@@ -222,10 +222,15 @@ def post_blobs():
     Input: None
     Output: List of posted file destinations
     """
+
+    from azure.storage.blob import BlobServiceClient
+
+    posted_files = []
+
     account_name = "s2torage"
     container_name = "s2t"
     account_url = f"https://{account_name}.blob.core.windows.net"
-    account_key = getenv("STORAGE_KEY")
+    account_key = os.environ["STORAGE_KEY"]
     container_name = "s2t"
 
     # Create client objects
@@ -235,6 +240,8 @@ def post_blobs():
         # Determine destinationbased on file extension
         extension = os.path.splitext(file_name)[1]
         match extension:
+            case ".mp3":
+                dst_folder = "data/mp3s/"
             case ".wav":
                 dst_folder = "data/wavs/"
             case  ".txt":
@@ -245,11 +252,15 @@ def post_blobs():
                 dst_folder = "."
          # Move file to destination - or delete
         if dst_folder != ".":
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)    
-            with open(file=file_name, mode="rb") as f:
-                blob_client.upload_blob(f)
-            posted_files.append(dst_folder + file_name)
-            cmd = f'rm "{"processing/" + file_name}"'
+            target_blob = dst_folder + file_name
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=target_blob)    
+            try: 
+                with open(file="processing/" + file_name, mode="rb") as f:
+                    blob_client.upload_blob(f, overwrite=True)
+                posted_files.append(dst_folder + file_name)
+                cmd = f'rm "{"processing/" + file_name}"'
+            except:
+                cmd = f"echo Failed to upload {file_name}"
             os.system(cmd)       
         else:
             pass
@@ -259,16 +270,16 @@ if __name__== "__main__":
     #Specify  source file
     source_file = "data/mp3s/actors.mp3"
 
-    # Set environment variables
-    from dotenv import load_dotenv
+    # # Set environment variables
+    # from dotenv import load_dotenv
 
-    env_file = "secrets/.env"
-    load_env_result = load_dotenv(env_file, override=True)
+    # env_file = "secrets/.env"
+    # load_env_result = load_dotenv(env_file, override=True)
     # Get the input file
-    mp3_file = get_file(source_file)
+    mp3_file = get_blob(source_file)
     # Run the pipeline
     wav_file = make_wav_from_mp3(mp3_file)
     txt_file = make_transcript(wav_file)
     sum_file = make_summary(txt_file)
     # Post the resulting files
-    post_files()
+    post_blobs()

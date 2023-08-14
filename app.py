@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 import os
+from datetime import datetime
 import uuid
 from flask import Flask, render_template, request
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+
+import speech2text as s2t
 
 app = Flask(__name__)
 
@@ -27,15 +30,24 @@ def index():
             return "No selected file"
 
         # Generate a unique filename
-        unique_filename = str(uuid.uuid4()) + "-" + file.filename
-        blob_client = container_client.get_blob_client(unique_filename)
+        # unique_filename = str(uuid.uuid4()) + "-" + file.filename
+        now = datetime.now()
+        formatted_date = now.strftime("%Y%m%d%H%M%S")
+        unique_filename = os.path.splitext(file.filename)[0] + formatted_date + os.path.splitext(file.filename)[1]  
+        unique_filepath = os.path.join("data/mp3s",unique_filename)
+        blob_client = container_client.get_blob_client(unique_filepath)
 
-        # Upload the file to Azure Blob Storage
-        blob_client.upload_blob(file)
+        if os.path.splitext(unique_filename)[1] == '.mp3':
+            # Upload the file to Azure Blob Storage
+            blob_client.upload_blob(file, content_type="audio/mpeg")
 
-        # Save to local file
-        folder_name = os.path.dirname(__file__)
-        file.save(os.path.join(folder_name,"data/mp3s",unique_filename))
+            # Run the speech2text pipeline
+            mp3_file = s2t.get_blob(unique_filepath)
+            wav_file = s2t.make_wav_from_mp3(mp3_file)
+            txt_file = s2t.make_transcript(wav_file)
+            sum_file = s2t.make_summary(txt_file)
+            # Post the resulting files
+            s2t.post_blobs()
 
         return "File uploaded successfully"
 
