@@ -11,12 +11,18 @@ Objectives:
 
 ## Learnings
 
-### Docker image
+### Development
 
 - I let go of Conda in favour of `venv` to get a much smaller docker image(too much weight in conda)
 - Started from Dockerś standard `python:3.10` image instead (as installing on top of `ubuntu:latest` led to too much issues to resolve)
 
 With `devcontainer` even venv is not needed. Just spin up container with dependencies from the right `requirements.txt`
+
+In the dev container start the app: 
+```bash
+gunicorn app:app
+```
+
 
 ### Git
 

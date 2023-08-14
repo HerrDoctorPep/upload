@@ -1,6 +1,6 @@
 services:
   uploadapp:
-    image: uploadapp
+    image: uploadapp:apt
     env_file:
       - secrets/.env
     ports:

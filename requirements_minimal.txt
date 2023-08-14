@@ -1,0 +1,8 @@
+gunicorn
+azure-storage-blob
+azure-cognitiveservices-speech
+Flask
+pydub
+openai
+tiktoken
+python-dotenv

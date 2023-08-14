@@ -33,6 +33,10 @@ def index():
         # Upload the file to Azure Blob Storage
         blob_client.upload_blob(file)
 
+        # Save to local file
+        folder_name = os.path.dirname(__file__)
+        file.save(os.path.join(folder_name,"data/mp3s",unique_filename))
+
         return "File uploaded successfully"
 
     return render_template("index.html")
