@@ -29,6 +29,7 @@
       dropzone.addEventListener("drop", async (e) => {
         e.preventDefault();
         dropzone.style.borderColor = "#ccc";
+        dropzone.innerHTML = `<p>Uploading and processing file ${file.name}.<br>This may take a while.</p>`;
 
         const file = e.dataTransfer.files[0];
         const formData = new FormData();
@@ -40,9 +41,19 @@
         });
 
         if (response.ok) {
-          alert("File uploaded successfully");
+          alert(`File ${file.name} uploaded and processed successfully`);
+          // Reload the page after successful upload
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
         } else {
-          alert("An error occurred while uploading the file");
+          alert(
+            `An error occurred while uploading and processing file ${file.name}`
+          );
+          // Reload the page after successful upload
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
         }
       });
     </script>
