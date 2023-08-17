@@ -6,12 +6,14 @@
 </head>
 
 <body>
-  <h1>Drag and Drop File Upload to Azure Blob Storage</h1>
+  <div id="title" style="width: 600px">
+    <h1>Drag and Drop MP3 file to Upload</h1>
+  </div>
   <div id="dropzone" style="border: 2px dashed #ccc; padding: 20px; width: 300px">
     <p>Drag and drop a file here</p>
   </div>
-  <hr>
-  <div id="gotosummaries" style="border: 2px #ccc; padding: 20px; width: 300px">
+  <div id="gotosummaries" style="border: 2px #ccc; padding: 20px; width: 600px">
+    <hr>
     <p>
       <a href="/summaries"> Click here to see available summaries </a>
     </p>
@@ -33,10 +35,12 @@
     dropzone.addEventListener("drop", async (e) => {
       e.preventDefault();
       dropzone.style.borderColor = "#ccc";
-      dropzone.innerHTML = `<p>Uploading and processing file ${file.name}.<br>This may take a while.</p>`;
 
       const file = e.dataTransfer.files[0];
       const formData = new FormData();
+
+      dropzone.innerHTML = `<p>Uploading and processing file ${file.name}.<br>This may take a while.</p>`;
+
       formData.append("file", file);
 
       const response = await fetch("/", {
