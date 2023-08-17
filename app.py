@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import os
+import os, io
 from datetime import datetime
 import uuid
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 import speech2text as s2t
@@ -53,5 +53,23 @@ def index():
 
     return render_template("index.html")
 
+@app.route('/summaries')
+def list_blobs():
+    subfolder_name = "data/summaries/"
+    blobs = [blob.name[len(subfolder_name):] for blob in container_client.list_blobs(name_starts_with=subfolder_name)]
+    return render_template('summaries.html', blobs=blobs)
+
+@app.route('/download/<blob_name>')
+def download(blob_name):
+    subfolder_name = "data/summaries/"
+    blob_client = container_client.get_blob_client(subfolder_name + blob_name)
+    blob_data = blob_client.download_blob().readall()
+    
+    response = make_response(blob_data)
+    response.headers['Content-Type'] = 'application/octet-stream'
+    response.headers['Content-Disposition'] = f'attachment; filename={blob_name}'
+
+    return response
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

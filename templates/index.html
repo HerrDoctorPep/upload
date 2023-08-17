@@ -1,61 +1,65 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Drag and Drop File Upload</title>
-  </head>
 
-  <body>
-    <h1>Drag and Drop File Upload to Azure Blob Storage</h1>
-    <div
-      id="dropzone"
-      style="border: 2px dashed #ccc; padding: 20px; width: 300px"
-    >
-      <p>Drag and drop a file here</p>
-    </div>
+<head>
+  <title>Drag and Drop File Upload</title>
+</head>
 
-    <script>
-      const dropzone = document.getElementById("dropzone");
+<body>
+  <h1>Drag and Drop File Upload to Azure Blob Storage</h1>
+  <div id="dropzone" style="border: 2px dashed #ccc; padding: 20px; width: 300px">
+    <p>Drag and drop a file here</p>
+  </div>
+  <div id="gotosummaries" style="border: 2px #ccc; padding: 20px; width: 300px">
+    <p>
+      <a href="/summaries"> Click here to see available summaries </a>
+    </p>
+  </div>
 
-      dropzone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = "blue";
+  <script>
+    const dropzone = document.getElementById("dropzone");
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = "blue";
+    });
+
+    dropzone.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = "#ccc";
+    });
+
+    dropzone.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = "#ccc";
+      dropzone.innerHTML = `<p>Uploading and processing file ${file.name}.<br>This may take a while.</p>`;
+
+      const file = e.dataTransfer.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/", {
+        method: "POST",
+        body: formData,
       });
 
-      dropzone.addEventListener("dragleave", (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = "#ccc";
-      });
+      if (response.ok) {
+        alert(`File ${file.name} uploaded and processed successfully`);
+        // Reload the page after successful upload
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      } else {
+        alert(
+          `An error occurred while uploading and processing file ${file.name}`
+        );
+        // Reload the page after successful upload
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      }
+    });
+  </script>
+</body>
 
-      dropzone.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = "#ccc";
-        dropzone.innerHTML = `<p>Uploading and processing file ${file.name}.<br>This may take a while.</p>`;
-
-        const file = e.dataTransfer.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (response.ok) {
-          alert(`File ${file.name} uploaded and processed successfully`);
-          // Reload the page after successful upload
-          setTimeout(() => {
-            window.location.reload();
-          }, 100);
-        } else {
-          alert(
-            `An error occurred while uploading and processing file ${file.name}`
-          );
-          // Reload the page after successful upload
-          setTimeout(() => {
-            window.location.reload();
-          }, 100);
-        }
-      });
-    </script>
-  </body>
 </html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Summaries</title>
+</head>
+
+<body>
+  <h1>Summary files available for download</h1>
+  <ul>
+    {% for blob in blobs %}
+    {% if blob != "summaries" %}
+    <li><a href="/download/{{ blob }}">{{ blob }}</a></li>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</body>
+
+</html>

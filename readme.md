@@ -63,8 +63,7 @@ Upload to blob works in test container (develop branch). Still to be deployed to
 
 ### Need smoother user experience in the app 
 - [ ] Status updates while the process runs
-- [ ] Download links for transcript and summary
 
-### Need version for interviews
+### Need version for interview-based podcasts
 - [ ] Solve for context window overshoot of transcript
 - [ ] Transcription solution for multiple voices
