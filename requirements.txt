@@ -13,7 +13,7 @@ click==8.1.6
 cryptography==41.0.3
 Flask==2.3.2
 frozenlist==1.4.0
-gunicorn==21.2.0
+gunicorn
 idna==3.4
 isodate==0.6.1
 itsdangerous==2.1.2
