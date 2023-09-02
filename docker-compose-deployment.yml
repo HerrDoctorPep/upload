@@ -1,0 +1,5 @@
+services:
+  uploadapp:
+    image: uploadapp:latest
+    ports:
+      - 5000:8000

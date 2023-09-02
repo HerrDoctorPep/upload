@@ -35,7 +35,8 @@ def get_blob(blob_name):
 
     # Create client objects
     blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)
-    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    container_client = blob_service_client.get_container_client(container_name)
+    blob_client = container_client.get_blob_client(blob_name)
 
     # Download the blob
     destination_file = "processing/" + os.path.basename(blob_name)
@@ -55,7 +56,7 @@ def make_wav_from_mp3(mp3_file):
     from pydub import AudioSegment
 
     base_name = os.path.splitext(mp3_file)[0]
-    wav_file = base_name+".wav"
+    wav_file = base_name + ".wav"
     sound = AudioSegment.from_file(mp3_file,format="mp3")
 
     sound.export(wav_file, format="wav")
@@ -77,9 +78,9 @@ def make_transcript(wav_file):
         region = os.environ["SPEECH_REGION"])
     speech_config.speech_recognition_language="en-GB"
     speech_config.output_format = speechsdk.OutputFormat.Detailed
-    now = datetime.now()
-    formatted_date = now.strftime("%Y%m%d%H%M%S")
-    speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "data/"+formatted_date+"-speechsdk.log")
+    # now = datetime.now()
+    # formatted_date = now.strftime("%Y%m%d%H%M%S")
+    # speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "data/"+formatted_date+"-speechsdk.log")
 
     audio_config = speechsdk.audio.AudioConfig(filename=wav_file)
 
@@ -99,10 +100,11 @@ def make_transcript(wav_file):
         Callback that writes recognized speech to file
         """
         result = evt.result
+        nonlocal transcript
         if result.reason == speechsdk.ResultReason.RecognizedSpeech:
             transcript.append(result.text)
         elif result.reason == speechsdk.ResultReason.NoMatch:
-            transcript.append("--- No speech could be recognized. ---\n")
+            transcript.append(" --- No speech could be recognized. --- ")
 
     transcript_complete = False
     
@@ -137,7 +139,7 @@ def make_transcript(wav_file):
 
     for phrase in transcript:
         with open(transcript_file,"a") as f:
-            f.write(phrase+"\n")
+            f.write(phrase + "\r\n")
 
     return transcript_file
 
@@ -173,7 +175,7 @@ def make_summary(transcript_file):
                 {"role": "system", "content": instruction},
                 {"role": "user", "content": transcript}
             ],
-            max_tokens=125  # Adjust the value as needed to control the length of the summary
+            max_tokens=150  # Adjust the value as needed to control the length of the summary
         )
 
     # Write the summary to a file with extension .summary

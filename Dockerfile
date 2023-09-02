@@ -24,6 +24,6 @@ RUN pip install -r /requirements.txt
 ADD . /uploadapp/
 WORKDIR /uploadapp
 
-EXPOSE 50505
+EXPOSE 8000
 
 ENTRYPOINT ["gunicorn", "app:app"]

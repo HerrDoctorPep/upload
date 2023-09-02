@@ -1,10 +1,9 @@
 services:
   uploadapp:
-    image: uploadapp:latest
+    image: uploadpipeline:latest
     env_file:
       - secrets/.env
     ports:
       - 5000:8000
     volumes:
       - /mnt/d-drive/micro/Documents/GitHub/uploadapp/data:/uploadapp/data
-      - /mnt/d-drive/micro/Documents/GitHub/uploadapp/processing:/uploadapp/processing

@@ -34,7 +34,7 @@ eval "$(ssh-agent -s)"
 ssh-add config/github-ssh
 ```
 
-### Deploying the app
+### Deployment approach
 
 I follow [this tutorial](https://learn.microsoft.com/en-us/azure/developer/python/tutorial-containerize-simple-web-app-for-app-service?tabs=web-app-flask)
 
@@ -49,13 +49,31 @@ With connection to Github, Azure makes its own container and ignores the `Docker
    -  Users are created via Azure Active Directory service
    -  Access control via IAM tab of the webapp resource
 
+Simple deployment based on standard image does not work in this case, because I need to install additional packages like `ffmpeg`.
+Alternative is to use an [Azure container registry](https://portal.azure.com/#@microsoftvdlaan.onmicrosoft.com/resource/subscriptions/020d939e-2d58-4a61-8612-a9424b3ad869/resourceGroups/s2tapp/providers/Microsoft.ContainerRegistry/registries/s2tcontainer/overview) with a custom container.
+
+- Webapp deployment allows to write a `docker-compose.yml` to customuze deployment.
+- Secrets can be passed as environmnet variables in configuration.
+
 ### Local testing
 Local testing of the app goes through building and running a container as defined in `Dockerfile` and `docker-compose.yml`.
 ```bash
-docker build --tag uploadapp .
+docker build -t uploadpipeline .
 docker compose up
 ```
 Environment variables are picked up from the `.env` to ensure access to Azure blob storage. To open the test-app visit: `localhost:5000`.
+
+### Uploading the image
+
+```bash
+az login
+az acr login --name s2tcontainer
+az acr list --resource-group s2tapp --output table
+
+docker tag uploadpipeline s2tcontainer.azurecr.io/uploadpipeline
+docker push s2tcontainer.azurecr.io/uploadpipeline
+```
+
 
 ## Status and to do's
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os, io
 from datetime import datetime
@@ -12,11 +13,12 @@ app = Flask(__name__)
 
 # Configuration
 account_name = "s2torage"
+account_url = f"https://{account_name}.blob.core.windows.net"
 account_key = os.environ["STORAGE_KEY"] # In deployment make sure the variable exists
 container_name = "s2t"
 
 # Initialize Blob Service Client
-blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
+blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)
 container_client = blob_service_client.get_container_client(container_name)
 
 @app.route("/", methods=["GET", "POST"])
@@ -29,8 +31,7 @@ def index():
         if file.filename == "":
             return "No selected file"
 
-        # Generate a unique filename
-        # unique_filename = str(uuid.uuid4()) + "-" + file.filename
+        # Generate a uniquetim-stamped filename
         now = datetime.now()
         formatted_date = now.strftime("%Y%m%d%H%M%S")
         unique_filename = os.path.splitext(file.filename)[0] + formatted_date + os.path.splitext(file.filename)[1]  
@@ -42,12 +43,27 @@ def index():
             blob_client.upload_blob(file, content_type="audio/mpeg")
 
             # Run the speech2text pipeline
-            mp3_file = s2t.get_blob(unique_filepath)
-            wav_file = s2t.make_wav_from_mp3(mp3_file)
-            txt_file = s2t.make_transcript(wav_file)
-            sum_file = s2t.make_summary(txt_file)
+            try: 
+                mp3_file = s2t.get_blob(unique_filepath)
+            except:
+                print(f"Error occurred in get_blob")
+            try:
+                wav_file = s2t.make_wav_from_mp3(mp3_file)
+            except:
+                print(f"Error occurred in make_wave_from_mp3")
+            try:
+                txt_file = s2t.make_transcript(wav_file)
+            except:
+                print(f"Error occurred in make_transcription")
+            try:
+                sum_file = s2t.make_summary(txt_file)
+            except:
+                print(f"Error occurred in make_summary")
             # Post the resulting files
-            s2t.post_blobs()
+            try:
+                s2t.post_blobs()
+            except:
+                print(f"Error occurred in post_blobs")
 
         return "File uploaded successfully"
 
