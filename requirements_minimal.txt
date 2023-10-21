@@ -6,3 +6,4 @@ pydub
 openai
 tiktoken
 python-dotenv
+pyyaml

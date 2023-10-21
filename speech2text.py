@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os, yaml
 import time
 from datetime import datetime
+
+# Configuration
+with open('config/settings.yml', 'r') as file:
+    setting = yaml.safe_load(file)
 
 def get_file(input_file):
     """
@@ -27,11 +31,10 @@ def get_blob(blob_name):
 
     from azure.storage.blob import BlobServiceClient
 
-    account_name = "s2torage"
-    container_name = "s2t"
+    account_name = setting["storage_account"]
     account_url = f"https://{account_name}.blob.core.windows.net"
-    account_key = os.environ["STORAGE_KEY"]
-    container_name = "s2t"
+    account_key = os.environ["STORAGE_KEY"] # In deployment make sure the variable exists
+    container_name = setting["storage_container"]
 
     # Create client objects
     blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)
@@ -229,11 +232,10 @@ def post_blobs():
 
     posted_files = []
 
-    account_name = "s2torage"
-    container_name = "s2t"
+    account_name = setting["storage_account"]
     account_url = f"https://{account_name}.blob.core.windows.net"
-    account_key = os.environ["STORAGE_KEY"]
-    container_name = "s2t"
+    account_key = os.environ["STORAGE_KEY"] # In deployment make sure the variable exists
+    container_name = setting["storage_container"]
 
     # Create client objects
     blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)

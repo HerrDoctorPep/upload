@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{filetype}}</title>
+  </head>
+
+  <body>
+    <h1>Summary files available for download</h1>
+    <ul>
+      {% for blob in blobs %} {% if blob != "{{filetype}}" %}
+      <li><a href="/downloads/{{filetype}}/{{ blob }}">{{ blob }}</a></li>
+      {% endif %} {% endfor %}
+    </ul>
+  </body>
+</html>

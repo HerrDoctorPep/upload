@@ -31,7 +31,7 @@ Added an ssh key following [this](https://docs.github.com/en/authentication/conn
 Make key available:
 ```bash
 eval "$(ssh-agent -s)"
-ssh-add config/github-ssh
+ssh-add ~/.ssh/github-ssh
 ```
 
 ### Deployment approach
@@ -74,13 +74,19 @@ docker tag uploadpipeline s2tcontainer.azurecr.io/uploadpipeline
 docker push s2tcontainer.azurecr.io/uploadpipeline
 ```
 
-
 ## Status and to do's
 
-Upload to blob works in test container (develop branch). Still to be deployed to production. 
+Now works when deployed as web app
 
-### Need smoother user experience in the app 
-- [ ] Status updates while the process runs
+### Bugs
+- [ ] Write last line of summary correctly to file
+- [ ] Handle longer podcasts smoothly in summarization (transcript length > max context)
+
+### Feature requests 
+- [ ] Make solution configurable via yaml (Az resources used, prompts, summary length)
+- [ ] Upload via browsing and/or typing file location (in addition to drag-and-drop)
+- [ ] Return path from overview of summaries to upload page
+- [ ] Option to display summary in text window on 'summaries' page (as alternative to downloading the text file)
 
 ### Need version for interview-based podcasts
 - [ ] Solve for context window overshoot of transcript

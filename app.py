@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, io
+import os, io, yaml
 from datetime import datetime
 import uuid
 from flask import Flask, render_template, request, make_response
@@ -12,10 +12,13 @@ import speech2text as s2t
 app = Flask(__name__)
 
 # Configuration
-account_name = "s2torage"
+with open('config/settings.yml', 'r') as file:
+    setting = yaml.safe_load(file)
+
+account_name = setting["storage_account"]
 account_url = f"https://{account_name}.blob.core.windows.net"
 account_key = os.environ["STORAGE_KEY"] # In deployment make sure the variable exists
-container_name = "s2t"
+container_name = setting["storage_container"]
 
 # Initialize Blob Service Client
 blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)
@@ -46,24 +49,24 @@ def index():
             try: 
                 mp3_file = s2t.get_blob(unique_filepath)
             except:
-                print(f"Error occurred in get_blob")
+                print("Error occurred in get_blob")
             try:
                 wav_file = s2t.make_wav_from_mp3(mp3_file)
             except:
-                print(f"Error occurred in make_wave_from_mp3")
+                print("Error occurred in make_wave_from_mp3")
             try:
                 txt_file = s2t.make_transcript(wav_file)
             except:
-                print(f"Error occurred in make_transcription")
+                print("Error occurred in make_transcription")
             try:
                 sum_file = s2t.make_summary(txt_file)
             except:
-                print(f"Error occurred in make_summary")
+                print("Error occurred in make_summary")
             # Post the resulting files
             try:
                 s2t.post_blobs()
             except:
-                print(f"Error occurred in post_blobs")
+                print("Error occurred in post_blobs")
 
         return "File uploaded successfully"
 
@@ -78,6 +81,19 @@ def list_blobs():
 @app.route('/download/<blob_name>')
 def download(blob_name):
     subfolder_name = "data/summaries/"
+    blob_client = container_client.get_blob_client(subfolder_name + blob_name)
+    blob_data = blob_client.download_blob().readall()
+    
+    response = make_response(blob_data)
+    response.headers['Content-Type'] = 'application/octet-stream'
+    response.headers['Content-Disposition'] = f'attachment; filename={blob_name}'
+
+    return response
+
+# This route is still in development
+@app.route('/downloads/<file_type>/<blob_name>')
+def download(file_type, blob_name):
+    subfolder_name = f"data/{file_type}/"
     blob_client = container_client.get_blob_client(subfolder_name + blob_name)
     blob_data = blob_client.download_blob().readall()
     
