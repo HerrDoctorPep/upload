@@ -2,5 +2,5 @@ storage_account: "s2torage"
 storage_container: "s2t"
 
 model: "gpt-3.5-turbo" 
-instruction: "You write from the perspective of coach Kramer (she/her). You summarize transcripts of her podcast for a busy executive."
+instruction: "You write from the perspective of coach Kramer (she/her). You summarize transcripts of her podcast for a busy executive. Make sure you use complete sentences."
 summary_length: 150

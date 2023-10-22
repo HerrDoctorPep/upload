@@ -1,14 +1,11 @@
 import os, io, yaml
-from datetime import datetime
+import speech2text as s2t
 import uuid
-import time
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 import streamlit as st
 
 # Configuration
-
-st.write(os.getcwd())
 
 with open(os.path.join(os.getcwd(),"config/settings.yml"), 'r') as file:
     setting = yaml.safe_load(file)
@@ -25,9 +22,38 @@ container_client = blob_service_client.get_container_client(container_name)
 def save_uploaded_file(destination_folder, uploaded_file):
     file_path = os.path.join(destination_folder,uploaded_file.name) 
     blob_client = container_client.get_blob_client(file_path)
-    blob_client.upload_blob(uploaded_file.getbuffer(), content_type="audio/mpeg")
+    if blob_client.exists():
+        return_notice = st.warning(f"File with name {uploaded_file.name}already exists in {destination_folder} on {container_name}")
+    else:
+        blob_client.upload_blob(uploaded_file.getbuffer())
+        return_notice = st.success(f"Uplooaded file {uploaded_file.name} to {destination_folder} on {container_name}")
     
-    return st.success(f"Uplooaded file {uploaded_file.name} to {destination_folder} on {container_name}")
+    return return_notice
+
+def run_s2t_pipeline(file_path):
+    # Run the speech2text pipeline
+    try: 
+        mp3_file = s2t.get_blob(file_path)
+    except:
+        print("Error occurred in get_blob")
+    try:
+        wav_file = s2t.make_wav_from_mp3(mp3_file)
+    except:
+        print("Error occurred in make_wave_from_mp3")
+    try:
+        txt_file = s2t.make_transcript(wav_file)
+    except:
+        print("Error occurred in make_transcription")
+    try:
+        sum_file = s2t.make_summary(txt_file)
+    except:
+        print("Error occurred in make_summary")
+    # Post the resulting files
+    try:
+        s2t.post_blobs()
+    except:
+        print("Error occurred in post_blobs")
+    return st.success("s2t pipeline has run")
 
 st.markdown(
     """
@@ -40,12 +66,13 @@ col1, col2 = st.columns(2)
 
 with col1:
     uploaded_mp3 = st.file_uploader("Upload your .mp3 file here", type=["mp3"])
+    mp3_folder = "data/mp3s"
     if uploaded_mp3 is not None:
-        save_uploaded_file("data/mp3s", uploaded_mp3)
+        save_uploaded_file(mp3_folder, uploaded_mp3)
         transcript_request = st.button("Create transcript")
         if transcript_request:
             with st.spinner("Working on transcript"):
-                time.sleep(2) # code will be added
+                run_s2t_pipeline(os.path.join(mp3_folder, uploaded_mp3.name))
                 st.success("Transcript complete!")
 with col2:
     uploaded_png = st.file_uploader("Upload your .png file here", type=["png"])
@@ -55,5 +82,4 @@ with col2:
             mp4_request = st.button("Create mp4")
             if mp4_request:
                 with st.spinner("Working on mp4"):
-                    time.sleep(2) # code will be added
                     st.success("mp4 complete!")
