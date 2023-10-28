@@ -81,21 +81,15 @@ Now leveraging `streamlit` to try out alternative front-end.
 streamlit run upload_page.py
 ```
 
-
 ## Status and to do's
 
-Now works when deployed as web app
+### Open work items
+- [ ] Test and deploy `streamlit`` version
 
 ### Bugs
-- [ ] Write last line of summary correctly to file
+- [ ] Write last line of summary correctly to file - *jury still out*
 - [ ] Handle longer podcasts smoothly in summarization (transcript length > max context)
 
 ### Feature requests 
-- [ ] Make solution configurable via yaml (Az resources used, prompts, summary length)
-- [ ] Upload via browsing and/or typing file location (in addition to drag-and-drop)
-- [ ] Return path from overview of summaries to upload page
-- [ ] Option to display summary in text window on 'summaries' page (as alternative to downloading the text file)
-
-### Need version for interview-based podcasts
 - [ ] Solve for context window overshoot of transcript
 - [ ] Transcription solution for multiple voices
