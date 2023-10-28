@@ -24,6 +24,8 @@ RUN pip install -r /requirements.txt
 ADD . /uploadapp/
 WORKDIR /uploadapp
 
-EXPOSE 8000
+# EXPOSE 8000
+# ENTRYPOINT ["gunicorn", "app:app"]
 
-ENTRYPOINT ["gunicorn", "app:app"]
+EXPOSE 8501
+ENTRYPOINT ["streamlit","run","upload_page.py", "--server.port=8501", "--server.address=0.0.0.0"]

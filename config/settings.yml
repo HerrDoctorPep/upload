@@ -1,8 +1,15 @@
 storage_account: "s2torage"
 storage_container: "s2t"
+mp3_folder: "data/mp3s"
+wav_folder: "data/wavs"
+mp4_folder: "data/mp4s"
+png_folder: "data/pngs"
+txt_folder: "data/transcripts"
+sum_folder: "data/summaries"
+proc_folder: "processing"
 
 model: "gpt-3.5-turbo" 
-instruction: "You write from the perspective of coach Kramer (she/her). 
+instruction: "You write from the perspective of coach Kramer (she/her).
   You summarize transcripts of her podcast for a busy executive. 
   Make sure to complete the final sentence before you run out of tokens alotted for the answer."
 summary_length: 150

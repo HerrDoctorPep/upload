@@ -4,6 +4,6 @@ services:
     env_file:
       - secrets/.env
     ports:
-      - 5000:8000
+      - 8501:8501
     volumes:
       - /mnt/d-drive/micro/Documents/GitHub/uploadapp/data:/uploadapp/data

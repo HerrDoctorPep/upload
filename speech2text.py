@@ -15,7 +15,7 @@ def get_file(input_file):
     Input: path of the source file
     Output: the path of the destination file 
     """
-    destination_file = "processing/" + os.path.basename(input_file)
+    destination_file = os.path.join(setting["proc_folder"], os.path.basename(input_file))
     
     cmd = f'cp "{input_file}" "{destination_file}"'
     os.system(cmd)
@@ -42,7 +42,7 @@ def get_blob(blob_name):
     blob_client = container_client.get_blob_client(blob_name)
 
     # Download the blob
-    destination_file = "processing/" + os.path.basename(blob_name)
+    destination_file = os.path.join(setting["proc_folder"],os.path.basename(blob_name))
     
     with open(destination_file, "wb") as f:
         blob_data = blob_client.download_blob()
@@ -183,7 +183,7 @@ def make_summary(transcript_file):
 
     # Write the summary to a file with extension .summary
     base_name = os.path.splitext(transcript_file)[0]
-    summary_file = base_name+".summary"
+    summary_file = base_name+".sum"
 
     with open(summary_file, "a") as f:
         f.write(response.choices[0].message['content'])
@@ -192,6 +192,17 @@ def make_summary(transcript_file):
     print(response)
 
     return summary_file, response
+
+def make_mp4(mp3_file, png_file):
+    """
+    Use ffmpeg to add static image to mp3 and save as mp4
+    Input: Path to the mp3 file and path to png file
+    Output: Path to the mp4 file
+    """
+    mp4_file = os.path.splitext(mp3_file)[0]+".mp4"
+    cmd = f"ffmpeg -loop 1 -framerate 1 -i \"{png_file}\" -i \"{mp3_file}\" -map 0:v -map 1:a -r 10 -vf \"scale='iw-mod(iw,2)':'ih-mod(ih,2)',format=yuv420p\" -movflags +faststart -shortest -fflags +shortest -max_interleave_delta 100M \"{mp4_file}\""
+    os.system(cmd)
+    return mp4_file
 
 def post_files():
     """
@@ -202,24 +213,30 @@ def post_files():
     """
     posted_files = []
 
-    for file_name in os.listdir("processing"):
+    for file_name in os.listdir(setting["proc_folder"]):
         # Determine destinationbased on file extension
         extension = os.path.splitext(file_name)[1]
         match extension:
             case ".wav":
-                dst_folder = "data/wavs/"
+                dst_folder = setting["wav_folder"]
             case  ".txt":
-                dst_folder = "data/transcripts/"
-            case ".summary":
-                dst_folder = "data/summaries/"
+                dst_folder = setting["txt_folder"]
+            case ".sum":
+                dst_folder = setting["sum_folder"]
+            case ".mp4":
+                dst_folder = setting["mp4_folder"]
             case _:
                 dst_folder = "."
 
         # Move file to destination - or delete
         if dst_folder != ".":
             posted_files.append(dst_folder + file_name)
-            cmd = f'mv "{"processing/" + file_name}" "{posted_files[-1]}"'
+            cmd = f'mv "{os.path.join(setting["proc_folder"],file_name)}" "{posted_files[-1]}"'
             os.system(cmd)
+        else:
+            cmd = f'rm "{os.path.join(setting["proc_folder"],file_name)}"'
+            os.system(cmd)
+
 
     return post_files
 
@@ -243,35 +260,35 @@ def post_blobs():
     # Create client objects
     blob_service_client = BlobServiceClient(account_url=account_url, credential=account_key)
 
-    for file_name in os.listdir("processing"):
+    for file_name in os.listdir(setting["proc_folder"]):
         # Determine destinationbased on file extension
         extension = os.path.splitext(file_name)[1]
         match extension:
-            case ".mp3":
-                dst_folder = "data/mp3s/"
             case ".wav":
-                dst_folder = "data/wavs/"
+                dst_folder = setting["wav_folder"]
             case  ".txt":
-                dst_folder = "data/transcripts/"
-            case ".summary":
-                dst_folder = "data/summaries/"
+                dst_folder = setting["txt_folder"]
+            case ".sum":
+                dst_folder = setting["sum_folder"]
+            case ".mp4":
+                dst_folder = setting["mp4_folder"]
             case _:
                 dst_folder = "."
          # Move file to destination - or delete
         if dst_folder != ".":
-            target_blob = dst_folder + file_name
+            target_blob = os.path.join(dst_folder,file_name)
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=target_blob)    
             try: 
-                with open(file="processing/" + file_name, mode="rb") as f:
+                with open(file=os.path.join(setting["proc_folder"],file_name), mode="rb") as f:
                     blob_client.upload_blob(f, overwrite=True)
-                posted_files.append(dst_folder + file_name)
-                cmd = f'rm "{"processing/" + file_name}"'
+                posted_files.append(os.path.join(dst_folder,file_name))
+                cmd = f'rm \"{os.path.join(setting["proc_folder"],file_name)}\"'
             except:
                 cmd = f"echo Failed to upload {file_name}"
             os.system(cmd)       
         else:
-            pass
-
+            cmd = f'rm "{os.path.join(setting["proc_folder"],file_name)}"'
+            os.system(cmd)
 
 if __name__== "__main__":
     #Specify  source file

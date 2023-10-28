@@ -73,6 +73,15 @@ docker tag uploadpipeline s2tcontainer.azurecr.io/uploadpipeline
 docker push s2tcontainer.azurecr.io/uploadpipeline
 ```
 
+### Streamlit
+
+Now leveraging `streamlit` to try out alternative front-end.
+
+```bash
+streamlit run upload_page.py
+```
+
+
 ## Status and to do's
 
 Now works when deployed as web app
