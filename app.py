@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, io, yaml
+import os, yaml
 from datetime import datetime
-import uuid
 from flask import Flask, render_template, request, make_response
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 

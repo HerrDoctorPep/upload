@@ -83,7 +83,7 @@ def make_transcript(wav_file):
     speech_config.output_format = speechsdk.OutputFormat.Detailed
     # now = datetime.now()
     # formatted_date = now.strftime("%Y%m%d%H%M%S")
-    # speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "data/"+formatted_date+"-speechsdk.log")
+    speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "data/speechsdk.log")
 
     audio_config = speechsdk.audio.AudioConfig(filename=wav_file)
 
@@ -187,8 +187,11 @@ def make_summary(transcript_file):
 
     with open(summary_file, "a") as f:
         f.write(response.choices[0].message['content'])
+        f.write("\r\n")
 
-    return summary_file
+    print(response)
+
+    return summary_file, response
 
 def post_files():
     """

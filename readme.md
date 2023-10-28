@@ -23,7 +23,6 @@ In the dev container start the app:
 gunicorn app:app
 ```
 
-
 ### Git
 
 Added an ssh key following [this](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) in the secrets folder.

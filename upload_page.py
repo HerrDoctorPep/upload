@@ -1,6 +1,5 @@
-import os, io, yaml
+import os, yaml, time
 import speech2text as s2t
-import uuid
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 import streamlit as st
@@ -32,27 +31,15 @@ def save_uploaded_file(destination_folder, uploaded_file):
 
 def run_s2t_pipeline(file_path):
     # Run the speech2text pipeline
-    try: 
-        mp3_file = s2t.get_blob(file_path)
-    except:
-        print("Error occurred in get_blob")
-    try:
-        wav_file = s2t.make_wav_from_mp3(mp3_file)
-    except:
-        print("Error occurred in make_wave_from_mp3")
-    try:
-        txt_file = s2t.make_transcript(wav_file)
-    except:
-        print("Error occurred in make_transcription")
-    try:
-        sum_file = s2t.make_summary(txt_file)
-    except:
-        print("Error occurred in make_summary")
+    mp3_file = s2t.get_blob(file_path)
+    wav_file = s2t.make_wav_from_mp3(mp3_file)
+    txt_file = s2t.make_transcript(wav_file)
+    while not os.path.exists(txt_file):
+        time.sleep(1)
+        print("Waiting for transcript...")
+    sum_file = s2t.make_summary(txt_file)
     # Post the resulting files
-    try:
-        s2t.post_blobs()
-    except:
-        print("Error occurred in post_blobs")
+    s2t.post_blobs()
     return st.success("s2t pipeline has run")
 
 st.markdown(
